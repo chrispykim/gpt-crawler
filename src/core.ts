@@ -56,6 +56,12 @@ export async function crawl(config: Config) {
     // browser controlled by the Playwright library.
     crawler = new PlaywrightCrawler(
       {
+        maxConcurrency: 1,
+        navigationTimeoutSecs: 60,
+        failedRequestHandler({ request, error }) {
+          console.error(`Request ${request.url} failed: ${error}`);
+        },
+        maxRequestsPerMinute: 60,
         // Use the requestHandler to process each of the crawled pages.
         async requestHandler({ request, page, enqueueLinks, log, pushData }) {
           const title = await page.title();
@@ -102,7 +108,7 @@ export async function crawl(config: Config) {
         // Comment this option to scrape the full website.
         maxRequestsPerCrawl: config.maxPagesToCrawl,
         // Uncomment this option to see the browser window.
-        // headless: false,
+        headless: false,
         preNavigationHooks: [
           // Abort requests for certain resource types
           async ({ request, page, log }) => {
